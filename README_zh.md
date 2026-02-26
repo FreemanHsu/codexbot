@@ -19,6 +19,33 @@ cp .env.example .env
 npm run dev
 ```
 
+## 安装与验证 Codex CLI
+
+若本机没有 `codex` 命令，先安装：
+
+```bash
+npm install -g @openai/codex
+```
+
+验证本地可执行：
+
+```bash
+codex --version
+which codex
+```
+
+验证端到端调用：
+
+```bash
+codex exec "say hello" --json --skip-git-repo-check
+```
+
+如果运行环境里 `which codex` 不稳定，建议在 `.env` 固定路径：
+
+```bash
+CODEX_EXECUTABLE_PATH=/Applications/Codex.app/Contents/Resources/codex
+```
+
 ## 必填配置
 
 `.env` 至少配置：

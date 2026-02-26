@@ -19,6 +19,33 @@ cp .env.example .env
 npm run dev
 ```
 
+## Install and Verify Codex CLI
+
+Install (if `codex` is missing):
+
+```bash
+npm install -g @openai/codex
+```
+
+Verify local binary:
+
+```bash
+codex --version
+which codex
+```
+
+Verify end-to-end call:
+
+```bash
+codex exec "say hello" --json --skip-git-repo-check
+```
+
+If `which codex` is not stable in your runtime environment, set this in `.env`:
+
+```bash
+CODEX_EXECUTABLE_PATH=/Applications/Codex.app/Contents/Resources/codex
+```
+
 ## Required Config
 
 In `.env`:
