@@ -2,7 +2,7 @@ import type { CardState } from '../types.js';
 
 /**
  * Platform-agnostic message sender interface.
- * Implemented by each IM platform (Feishu, Telegram, etc.).
+ * Implemented by Feishu sender adapters.
  */
 export interface IMessageSender {
   /** Send a new streaming card/message for a CardState. Returns messageId for subsequent updates. */

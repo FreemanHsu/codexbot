@@ -44,7 +44,7 @@ function createMockRegistry(botExists = true, isBusy = false): BotRegistry {
   const mockBot = {
     bridge: mockBridge,
     sender: mockSender,
-    config: { claude: { defaultWorkingDirectory: '/tmp' } },
+    config: { codex: { defaultWorkingDirectory: '/tmp', allowedTools: [] } },
   };
   return {
     get: vi.fn().mockReturnValue(botExists ? mockBot : undefined),

@@ -1,4 +1,4 @@
-// Shared types used across IM platforms (Feishu, Telegram, etc.)
+// Shared types used across MetaBot message handling.
 
 export type CardStatus = 'thinking' | 'running' | 'complete' | 'error' | 'waiting_for_input';
 

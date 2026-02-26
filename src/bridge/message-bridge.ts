@@ -4,9 +4,11 @@ import type { BotConfigBase } from '../config.js';
 import type { Logger } from '../utils/logger.js';
 import type { IncomingMessage, CardState, PendingQuestion } from '../types.js';
 import type { IMessageSender } from './message-sender.interface.js';
-import { ClaudeExecutor, type ExecutionHandle } from '../claude/executor.js';
-import { StreamProcessor } from '../claude/stream-processor.js';
-import { SessionManager } from '../claude/session-manager.js';
+import type { ExecutionHandle } from '../agent/types.js';
+import { StreamProcessor } from '../agent/stream-processor.js';
+import { SessionManager } from '../agent/session-manager.js';
+import type { AgentExecutor } from '../agent/types.js';
+import { CodexExecutor } from '../codex/executor.js';
 import { RateLimiter } from './rate-limiter.js';
 import { OutputsManager } from './outputs-manager.js';
 import { MemoryClient } from '../memory/memory-client.js';
@@ -52,7 +54,7 @@ export interface ApiTaskResult {
 }
 
 export class MessageBridge {
-  private executor: ClaudeExecutor;
+  private executor: AgentExecutor;
   private sessionManager: SessionManager;
   private outputsManager: OutputsManager;
   private audit: AuditLogger;
@@ -69,9 +71,9 @@ export class MessageBridge {
     memoryServerUrl: string,
     memorySecret?: string,
   ) {
-    this.executor = new ClaudeExecutor(config, logger);
-    this.sessionManager = new SessionManager(config.claude.defaultWorkingDirectory, logger, config.name);
-    this.outputsManager = new OutputsManager(config.claude.outputsBaseDir, logger);
+    this.executor = new CodexExecutor(config, logger);
+    this.sessionManager = new SessionManager(config.codex.defaultWorkingDirectory, logger, config.name);
+    this.outputsManager = new OutputsManager(config.codex.outputsBaseDir, logger);
     this.audit = new AuditLogger(logger);
     this.costTracker = new CostTracker();
 
@@ -122,7 +124,7 @@ export class MessageBridge {
       const handled = await this.commandHandler.handle(msg);
       if (handled) return;
 
-      // Unrecognized /xxx command — pass through to Claude
+      // Unrecognized /xxx command — pass through to Codex
       if (this.runningTasks.has(chatId)) {
         await this.sender.sendTextNotice(
           chatId,
@@ -167,7 +169,7 @@ export class MessageBridge {
       return;
     }
 
-    // Execute Claude query
+    // Execute agent query
     await this.executeQuery(msg);
   }
 
@@ -213,7 +215,7 @@ export class MessageBridge {
     const sessionId = task.processor.getSessionId() || '';
     task.executionHandle.sendAnswer(pending.toolUseId, sessionId, answerJson);
 
-    this.logger.info({ chatId, answer: answerText, toolUseId: pending.toolUseId }, 'Sent user answer to Claude');
+    this.logger.info({ chatId, answer: answerText, toolUseId: pending.toolUseId }, 'Sent user answer to agent');
   }
 
   private async executeQuery(msg: IncomingMessage): Promise<void> {
@@ -223,7 +225,7 @@ export class MessageBridge {
     const abortController = new AbortController();
 
     // Prepare downloads directory (bot-isolated)
-    const downloadsDir = this.config.claude.downloadsDir;
+    const downloadsDir = this.config.codex.downloadsDir;
     fs.mkdirSync(downloadsDir, { recursive: true });
 
     // Handle image download if present
@@ -395,7 +397,7 @@ export class MessageBridge {
           lastState = {
             ...lastState,
             status: lastState.responseText ? 'complete' : 'error',
-            errorMessage: lastState.responseText ? undefined : 'Claude session ended unexpectedly',
+            errorMessage: lastState.responseText ? undefined : 'Codex session ended unexpectedly',
           };
         }
       }
@@ -419,10 +421,10 @@ export class MessageBridge {
       metrics.observeHistogram('metabot_task_duration_seconds', durationMs / 1000);
       if (lastState.costUsd) metrics.observeHistogram('metabot_task_cost_usd', lastState.costUsd);
 
-      // Send any output files produced by Claude
+      // Send any output files produced by the agent
       await this.outputHandler.sendOutputFiles(chatId, outputsDir, processor, lastState);
     } catch (err: any) {
-      this.logger.error({ err, chatId, userId }, 'Claude execution error');
+      this.logger.error({ err, chatId, userId }, 'Agent execution error');
 
       const durationMs = Date.now() - startTime;
       this.audit.log({
@@ -591,7 +593,7 @@ export class MessageBridge {
           lastState = {
             ...lastState,
             status: lastState.responseText ? 'complete' : 'error',
-            errorMessage: lastState.responseText ? undefined : 'Claude session ended unexpectedly',
+            errorMessage: lastState.responseText ? undefined : 'Codex session ended unexpectedly',
           };
         }
       }

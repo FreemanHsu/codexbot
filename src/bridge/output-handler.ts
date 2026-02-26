@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import type { Logger } from '../utils/logger.js';
 import type { CardState } from '../types.js';
 import type { IMessageSender } from './message-sender.interface.js';
-import { StreamProcessor, extractImagePaths } from '../claude/stream-processor.js';
+import { StreamProcessor, extractImagePaths } from '../agent/stream-processor.js';
 import { OutputsManager } from './outputs-manager.js';
 
 export class OutputHandler {
@@ -20,7 +20,7 @@ export class OutputHandler {
   ): Promise<void> {
     const sentPaths = new Set<string>();
 
-    // 1. Scan the outputs directory for any files Claude placed there
+    // 1. Scan the outputs directory for any files the agent placed there
     const outputFiles = this.outputsManager.scanOutputs(outputsDir);
     for (const file of outputFiles) {
       try {

@@ -15,12 +15,5 @@
       "maxTurns": 30,
       "maxBudgetUsd": 0.5
     }
-  ],
-  "telegramBots": [
-    {
-      "name": "tg-project",
-      "telegramBotToken": "123456:ABC-DEF...",
-      "defaultWorkingDirectory": "/home/user/project"
-    }
   ]
 }

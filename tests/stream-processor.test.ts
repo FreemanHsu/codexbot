@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { StreamProcessor, extractImagePaths } from '../src/claude/stream-processor.js';
-import type { SDKMessage } from '../src/claude/executor.js';
+import { StreamProcessor, extractImagePaths } from '../src/agent/stream-processor.js';
+import type { AgentMessage } from '../src/agent/types.js';
 
-function msg(overrides: Partial<SDKMessage>): SDKMessage {
-  return { type: 'system', session_id: 'sess-1', ...overrides } as SDKMessage;
+function msg(overrides: Partial<AgentMessage>): AgentMessage {
+  return { type: 'system', session_id: 'sess-1', ...overrides } as AgentMessage;
 }
 
 describe('StreamProcessor', () => {

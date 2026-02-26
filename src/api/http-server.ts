@@ -358,54 +358,36 @@ export function startApiServer(options: ApiServerOptions): http.Server {
           jsonResponse(res, 400, { error: 'Missing required fields: platform, name' });
           return;
         }
-        if (platform !== 'feishu' && platform !== 'telegram') {
-          jsonResponse(res, 400, { error: 'platform must be "feishu" or "telegram"' });
+        if (platform !== 'feishu') {
+          jsonResponse(res, 400, { error: 'Only feishu platform is supported' });
           return;
         }
 
         let entry: Record<string, unknown>;
-        if (platform === 'feishu') {
-          const appId = body.feishuAppId as string;
-          const appSecret = body.feishuAppSecret as string;
-          const workDir = body.defaultWorkingDirectory as string;
-          if (!appId || !appSecret || !workDir) {
-            jsonResponse(res, 400, { error: 'Feishu bot requires: feishuAppId, feishuAppSecret, defaultWorkingDirectory' });
-            return;
-          }
-          entry = {
-            name,
-            feishuAppId: appId,
-            feishuAppSecret: appSecret,
-            defaultWorkingDirectory: workDir,
-            ...(body.allowedTools ? { allowedTools: body.allowedTools } : {}),
-            ...(body.maxTurns ? { maxTurns: body.maxTurns } : {}),
-            ...(body.maxBudgetUsd ? { maxBudgetUsd: body.maxBudgetUsd } : {}),
-            ...(body.model ? { model: body.model } : {}),
-          };
-        } else {
-          const token = body.telegramBotToken as string;
-          const workDir = body.defaultWorkingDirectory as string;
-          if (!token || !workDir) {
-            jsonResponse(res, 400, { error: 'Telegram bot requires: telegramBotToken, defaultWorkingDirectory' });
-            return;
-          }
-          entry = {
-            name,
-            telegramBotToken: token,
-            defaultWorkingDirectory: workDir,
-            ...(body.allowedTools ? { allowedTools: body.allowedTools } : {}),
-            ...(body.maxTurns ? { maxTurns: body.maxTurns } : {}),
-            ...(body.maxBudgetUsd ? { maxBudgetUsd: body.maxBudgetUsd } : {}),
-            ...(body.model ? { model: body.model } : {}),
-          };
+        const appId = body.feishuAppId as string;
+        const appSecret = body.feishuAppSecret as string;
+        const workDir = body.defaultWorkingDirectory as string;
+        if (!appId || !appSecret || !workDir) {
+          jsonResponse(res, 400, { error: 'Feishu bot requires: feishuAppId, feishuAppSecret, defaultWorkingDirectory' });
+          return;
         }
+        entry = {
+          name,
+          feishuAppId: appId,
+          feishuAppSecret: appSecret,
+          defaultWorkingDirectory: workDir,
+          ...(body.allowedTools ? { allowedTools: body.allowedTools } : {}),
+          ...(body.maxTurns ? { maxTurns: body.maxTurns } : {}),
+          ...(body.maxBudgetUsd ? { maxBudgetUsd: body.maxBudgetUsd } : {}),
+          ...(body.model ? { model: body.model } : {}),
+        };
 
         try {
           // Ensure working directory exists
           const workDir = (body.defaultWorkingDirectory as string);
           fs.mkdirSync(workDir, { recursive: true });
 
-          addBot(botsConfigPath, platform, entry as any);
+          addBot(botsConfigPath, 'feishu', entry as any);
           logger.info({ name, platform }, 'Bot added to config');
 
           // Optionally install skills
@@ -416,6 +398,7 @@ export function startApiServer(options: ApiServerOptions): http.Server {
           jsonResponse(res, 201, {
             name,
             platform,
+            backend: 'codex',
             workingDirectory: workDir,
             message: 'Bot added. PM2 will restart to activate it.',
           });
@@ -440,7 +423,12 @@ export function startApiServer(options: ApiServerOptions): http.Server {
         // Check running registry first
         const running = registry.get(name);
         const runningInfo = running
-          ? { running: true, workingDirectory: running.config.claude.defaultWorkingDirectory, allowedTools: running.config.claude.allowedTools }
+          ? {
+            running: true,
+            backend: 'codex',
+            workingDirectory: running.config.codex.defaultWorkingDirectory,
+            allowedTools: running.config.codex.allowedTools,
+          }
           : { running: false };
 
         // Check config file if available

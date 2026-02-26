@@ -4,7 +4,7 @@ import type { IMessageSender } from '../bridge/message-sender.interface.js';
 
 export interface RegisteredBot {
   name: string;
-  platform: 'feishu' | 'telegram';
+  platform: 'feishu';
   config: BotConfigBase;
   bridge: MessageBridge;
   sender: IMessageSender;
@@ -14,6 +14,7 @@ export interface RegisteredBot {
 export interface BotInfo {
   name: string;
   platform: string;
+  backend: string;
   workingDirectory: string;
   allowedTools: string[];
 }
@@ -41,8 +42,9 @@ export class BotRegistry {
     return Array.from(this.bots.values()).map((b) => ({
       name: b.name,
       platform: b.platform,
-      workingDirectory: b.config.claude.defaultWorkingDirectory,
-      allowedTools: b.config.claude.allowedTools,
+      backend: 'codex',
+      workingDirectory: b.config.codex.defaultWorkingDirectory,
+      allowedTools: b.config.codex.allowedTools,
     }));
   }
 }

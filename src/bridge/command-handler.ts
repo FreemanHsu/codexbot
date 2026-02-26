@@ -2,7 +2,7 @@ import type { BotConfigBase } from '../config.js';
 import type { Logger } from '../utils/logger.js';
 import type { IncomingMessage } from '../types.js';
 import type { IMessageSender } from './message-sender.interface.js';
-import { SessionManager } from '../claude/session-manager.js';
+import { SessionManager } from '../agent/session-manager.js';
 import { MemoryClient } from '../memory/memory-client.js';
 import { AuditLogger } from '../utils/audit-logger.js';
 
@@ -39,7 +39,7 @@ export class CommandHandler {
           '`/help` - Show this help message',
           '',
           '**Usage:**',
-          'Send any text message to start a conversation with Claude Code.',
+          'Send any text message to start a conversation with the agent backend.',
           'Each chat has an independent session with a fixed working directory.',
           '',
           '**Memory Commands:**',
@@ -85,7 +85,7 @@ export class CommandHandler {
       }
 
       default:
-        // Unrecognized /xxx commands — not handled here, pass through to Claude
+        // Unrecognized /xxx commands — not handled here, pass through to Codex
         return false;
     }
   }

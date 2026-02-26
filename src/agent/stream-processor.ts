@@ -1,4 +1,4 @@
-import type { SDKMessage } from './executor.js';
+import type { AgentMessage } from './types.js';
 import type { CardState, ToolCall, PendingQuestion } from '../feishu/card-builder.js';
 
 const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg', '.tiff']);
@@ -15,7 +15,7 @@ export class StreamProcessor {
 
   constructor(private userPrompt: string) {}
 
-  processMessage(message: SDKMessage): CardState {
+  processMessage(message: AgentMessage): CardState {
     // Capture session_id from any message
     if (message.session_id && !this.sessionId) {
       this.sessionId = message.session_id;
@@ -60,7 +60,7 @@ export class StreamProcessor {
     };
   }
 
-  private processAssistantMessage(message: SDKMessage): void {
+  private processAssistantMessage(message: AgentMessage): void {
     if (!message.message?.content) return;
 
     for (const block of message.message.content) {
@@ -83,7 +83,7 @@ export class StreamProcessor {
     }
   }
 
-  private processStreamEvent(message: SDKMessage): void {
+  private processStreamEvent(message: AgentMessage): void {
     const event = message.event;
     if (!event) return;
 
@@ -111,7 +111,7 @@ export class StreamProcessor {
     }
   }
 
-  private processResultMessage(message: SDKMessage): CardState {
+  private processResultMessage(message: AgentMessage): CardState {
     this.costUsd = message.total_cost_usd;
     this.durationMs = message.duration_ms;
 

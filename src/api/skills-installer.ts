@@ -4,11 +4,11 @@ import * as path from 'node:path';
 import * as url from 'node:url';
 import type { Logger } from '../utils/logger.js';
 
-const SKILL_NAMES = ['metaskill', 'metamemory', 'metabot-api'];
+const SKILL_NAMES = ['metamemory', 'metabot-api'];
 
 export function installSkillsToWorkDir(workDir: string, logger: Logger): void {
-  const userSkillsDir = path.join(os.homedir(), '.claude', 'skills');
-  const destSkillsDir = path.join(workDir, '.claude', 'skills');
+  const userSkillsDir = path.join(os.homedir(), '.codex', 'skills');
+  const destSkillsDir = path.join(workDir, '.codex', 'skills');
 
   for (const skill of SKILL_NAMES) {
     const src = path.join(userSkillsDir, skill);
@@ -24,19 +24,19 @@ export function installSkillsToWorkDir(workDir: string, logger: Logger): void {
     logger.info({ skill, src, dest }, 'Skill installed to working directory');
   }
 
-  // Deploy workspace CLAUDE.md if not already present
-  const destClaudeMd = path.join(workDir, 'CLAUDE.md');
-  if (!fs.existsSync(destClaudeMd)) {
+  // Deploy workspace AGENTS.md if not already present
+  const destAgentsMd = path.join(workDir, 'AGENTS.md');
+  if (!fs.existsSync(destAgentsMd)) {
     const thisFile = url.fileURLToPath(import.meta.url);
     const thisDir = path.dirname(thisFile);
-    // Try src/workspace/CLAUDE.md (tsx) or dist/workspace/CLAUDE.md (compiled)
+    // Try src/workspace/AGENTS.md (tsx) or dist/workspace/AGENTS.md (compiled)
     for (const candidate of [
-      path.join(thisDir, '..', 'workspace', 'CLAUDE.md'),
-      path.join(thisDir, '..', '..', 'src', 'workspace', 'CLAUDE.md'),
+      path.join(thisDir, '..', 'workspace', 'AGENTS.md'),
+      path.join(thisDir, '..', '..', 'src', 'workspace', 'AGENTS.md'),
     ]) {
       if (fs.existsSync(candidate)) {
-        fs.copyFileSync(candidate, destClaudeMd);
-        logger.info({ dest: destClaudeMd }, 'CLAUDE.md deployed to working directory');
+        fs.copyFileSync(candidate, destAgentsMd);
+        logger.info({ dest: destAgentsMd }, 'AGENTS.md deployed to working directory');
         break;
       }
     }

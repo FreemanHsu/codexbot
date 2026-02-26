@@ -109,7 +109,7 @@ export class SessionManager {
     try {
       const data: Record<string, PersistedSession> = {};
       for (const [chatId, session] of this.sessions) {
-        // Only persist sessions that have a sessionId (active Claude sessions)
+        // Only persist sessions that have a sessionId (active Codex sessions)
         if (session.sessionId) {
           data[chatId] = {
             sessionId: session.sessionId,

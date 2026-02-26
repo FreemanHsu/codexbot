@@ -23,16 +23,17 @@ npm run build
 npm run dev
 ```
 
-**Prerequisites:** Node.js 20+, Claude Code CLI installed.
+**Prerequisites:** Node.js 20+, Codex CLI installed.
 
 ## Project Structure
 
 ```
 src/
+  agent/         # Agent stream/session abstractions
   bridge/        # Message routing & task management
-  claude/        # Claude Agent SDK integration
+  codex/         # Codex executor integration
   feishu/        # Feishu API client & card builder
-  memory/        # Memory server client
+  memory/        # Embedded memory server + client
   utils/         # Logger, helpers
 ```
 

@@ -61,14 +61,6 @@ curl -s -X POST http://localhost:${METABOT_API_PORT:-9100}/api/bots \
   -d '{"platform":"feishu","name":"<name>","feishuAppId":"...","feishuAppSecret":"...","defaultWorkingDirectory":"/path","installSkills":true}'
 ```
 
-**Create Telegram bot:**
-```bash
-curl -s -X POST http://localhost:${METABOT_API_PORT:-9100}/api/bots \
-  -H "Authorization: Bearer $METABOT_API_SECRET" \
-  -H "Content-Type: application/json" \
-  -d '{"platform":"telegram","name":"<name>","telegramBotToken":"...","defaultWorkingDirectory":"/path","installSkills":true}'
-```
-
 **Remove bot:**
 ```bash
 curl -s -X DELETE http://localhost:${METABOT_API_PORT:-9100}/api/bots/<name> \
@@ -109,6 +101,6 @@ curl -s -X PATCH http://localhost:${METABOT_API_PORT:-9100}/api/schedule/<id> \
 ```
 
 When asked to create a bot:
-1. Ask user for platform + credentials + project name + working directory
+1. Ask user for Feishu credentials + project name + working directory
 2. POST /api/bots with installSkills:true
 3. Report success — new bot activates within ~3 seconds via PM2 file-watch
