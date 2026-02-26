@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# mm - MetaMemory CLI (installed by MetaBot)
+# mm - MetaMemory CLI (installed by CodexBot)
 # Standalone executable — works without sourcing any file.
 
 set -euo pipefail
 
 # --- Config: env vars > .env file > defaults ---
-# Locate .env: METABOT_HOME > ~/feishu-claudecode > ~/metabot > script dir
+# Locate .env: METABOT_HOME > ~/codexbot > script dir
 _find_env() {
-  for d in "${METABOT_HOME:-}" "$HOME/feishu-claudecode" "$HOME/metabot"; do
+  for d in "${METABOT_HOME:-}" "$HOME/codexbot"; do
     [[ -n "$d" && -f "$d/.env" ]] && echo "$d/.env" && return
   done
   # Fallback: relative to this script's install location
@@ -68,7 +68,7 @@ case "$cmd" in
     _curl "$MEMORY_URL/api/documents/$1" | _json
     ;;
   path|p)
-    # Get document by path, e.g.: mm path /metabot/weekly-updates
+    # Get document by path, e.g.: mm path /codexbot/weekly-updates
     path=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(' '.join(sys.argv[1:])))" "$@" 2>/dev/null || echo "$*")
     _curl "$MEMORY_URL/api/documents/by-path?path=$path" | _json
     ;;

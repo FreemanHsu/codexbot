@@ -83,7 +83,7 @@ async function main() {
   }
 
   const feishuCount = appConfig.feishuBots.length;
-  logger.info({ feishuBots: feishuCount, memoryServerUrl: appConfig.memoryServerUrl }, 'Starting MetaBot bridge...');
+  logger.info({ feishuBots: feishuCount, memoryServerUrl: appConfig.memoryServerUrl }, 'Starting CodexBot bridge...');
 
   const registry = new BotRegistry();
 

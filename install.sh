@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_URL="https://github.com/xvirobotics/metabot.git"
-TARGET_DIR="${HOME}/metabot"
+REPO_URL="https://github.com/FreemanHsu/codexbot.git"
+TARGET_DIR="${HOME}/codexbot"
 
-echo "MetaBot installer (Feishu + Codex)"
+echo "CodexBot installer (Feishu + Codex)"
 
 if [ ! -d "$TARGET_DIR/.git" ]; then
   git clone "$REPO_URL" "$TARGET_DIR"

@@ -102,8 +102,8 @@ function buildCodexConfig(entry: {
     maxTurns: entry.maxTurns ?? (process.env.CODEX_MAX_TURNS ? parseInt(process.env.CODEX_MAX_TURNS, 10) : undefined),
     maxBudgetUsd: entry.maxBudgetUsd ?? (process.env.CODEX_MAX_BUDGET_USD ? parseFloat(process.env.CODEX_MAX_BUDGET_USD) : undefined),
     model: entry.model || process.env.CODEX_MODEL,
-    outputsBaseDir: entry.outputsBaseDir || process.env.OUTPUTS_BASE_DIR || path.join(os.tmpdir(), 'metabot-outputs'),
-    downloadsDir: entry.downloadsDir || process.env.DOWNLOADS_DIR || path.join(os.tmpdir(), 'metabot-downloads'),
+    outputsBaseDir: entry.outputsBaseDir || process.env.OUTPUTS_BASE_DIR || path.join(os.tmpdir(), 'codexbot-outputs'),
+    downloadsDir: entry.downloadsDir || process.env.DOWNLOADS_DIR || path.join(os.tmpdir(), 'codexbot-downloads'),
   };
 }
 
@@ -124,8 +124,8 @@ function feishuBotFromEnv(): BotConfig {
       maxTurns: process.env.CODEX_MAX_TURNS ? parseInt(process.env.CODEX_MAX_TURNS, 10) : undefined,
       maxBudgetUsd: process.env.CODEX_MAX_BUDGET_USD ? parseFloat(process.env.CODEX_MAX_BUDGET_USD) : undefined,
       model: process.env.CODEX_MODEL,
-      outputsBaseDir: process.env.OUTPUTS_BASE_DIR || path.join(os.tmpdir(), 'metabot-outputs'),
-      downloadsDir: process.env.DOWNLOADS_DIR || path.join(os.tmpdir(), 'metabot-downloads'),
+      outputsBaseDir: process.env.OUTPUTS_BASE_DIR || path.join(os.tmpdir(), 'codexbot-outputs'),
+      downloadsDir: process.env.DOWNLOADS_DIR || path.join(os.tmpdir(), 'codexbot-downloads'),
     },
   };
 }

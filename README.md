@@ -1,6 +1,6 @@
-# MetaBot (Feishu + Codex)
+# codexbot (Feishu + Codex)
 
-MetaBot is a bridge service that lets you use **Codex remotely from Feishu**.
+CodexBot is a bridge service that lets you use **Codex remotely from Feishu**.
 
 ## What This Fork Supports
 - Feishu/Lark bot only
@@ -11,8 +11,8 @@ MetaBot is a bridge service that lets you use **Codex remotely from Feishu**.
 ## Quick Start
 
 ```bash
-git clone https://github.com/xvirobotics/metabot.git
-cd metabot
+git clone https://github.com/FreemanHsu/codexbot.git
+cd codexbot
 npm install
 cp bots.example.json bots.json
 cp .env.example .env

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# mb - MetaBot API CLI (installed by MetaBot)
+# mb - CodexBot API CLI (installed by CodexBot)
 # Standalone executable — works without sourcing any file.
 
 set -euo pipefail
 
 # --- Config: env vars > .env file > defaults ---
 if [[ -z "${METABOT_URL:-}" ]]; then
-  METABOT_ENV="${METABOT_HOME:-$HOME/metabot}/.env"
+  METABOT_ENV="${METABOT_HOME:-$HOME/codexbot}/.env"
   if [[ -f "$METABOT_ENV" ]]; then
     _port=$(grep -oP '^API_PORT=\K.*' "$METABOT_ENV" 2>/dev/null || true)
     _secret=$(grep -oP '^API_SECRET=\K.*' "$METABOT_ENV" 2>/dev/null || true)
@@ -121,7 +121,7 @@ print(json.dumps({'botName': sys.argv[1], 'chatId': sys.argv[2], 'cronExpr': sys
     ;;
   # --- Help ---
   *)
-    echo "mb - MetaBot API CLI"
+    echo "mb - CodexBot API CLI"
     echo ""
     echo "  Bots:"
     echo "    mb bots                          - List all bots"

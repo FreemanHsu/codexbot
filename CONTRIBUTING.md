@@ -1,4 +1,4 @@
-# Contributing to MetaBot
+# Contributing to CodexBot
 
 Thanks for your interest in contributing! This guide will help you get started.
 
@@ -6,8 +6,8 @@ Thanks for your interest in contributing! This guide will help you get started.
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/xvirobotics/metabot.git
-cd metabot
+git clone https://github.com/FreemanHsu/codexbot.git
+cd codexbot
 
 # 2. Install dependencies
 npm install
@@ -41,12 +41,12 @@ src/
 
 ### Reporting Bugs
 
-- Use the [Bug Report](https://github.com/xvirobotics/metabot/issues/new?template=bug_report.md) template
+- Use the [Bug Report](https://github.com/FreemanHsu/codexbot/issues/new?template=bug_report.md) template
 - Include logs (redact sensitive info) and steps to reproduce
 
 ### Suggesting Features
 
-- Use the [Feature Request](https://github.com/xvirobotics/metabot/issues/new?template=feature_request.md) template
+- Use the [Feature Request](https://github.com/FreemanHsu/codexbot/issues/new?template=feature_request.md) template
 - Describe the use case, not just the solution
 
 ### Submitting Pull Requests

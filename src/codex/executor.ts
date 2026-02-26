@@ -21,7 +21,7 @@ export class CodexExecutor {
     const queue = new AsyncQueue<AgentMessage>();
     const startTime = Date.now();
 
-    const outputFile = path.join(os.tmpdir(), `metabot-codex-last-${process.pid}-${Date.now()}.txt`);
+    const outputFile = path.join(os.tmpdir(), `codexbot-codex-last-${process.pid}-${Date.now()}.txt`);
     const executable = process.env.CODEX_EXECUTABLE_PATH || 'codex';
     const args = this.buildArgs(cwd, prompt, outputFile, sessionId);
 

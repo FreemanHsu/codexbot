@@ -1,6 +1,6 @@
-# MetaBot Workspace
+# CodexBot Workspace
 
-This workspace is managed by **MetaBot** — an AI assistant accessible from Feishu that runs Codex with coding tool access.
+This workspace is managed by **CodexBot** — an AI assistant accessible from Feishu that runs Codex with coding tool access.
 
 ## Available Skills
 
@@ -14,7 +14,7 @@ mm list [folder_id]
 mm folders
 ```
 
-### /metabot-api — Agent Bus, Scheduling & Bot Management
+### /codexbot-api — Agent Bus, Scheduling & Bot Management
 Use the `mb` shell shortcut:
 
 ```bash

@@ -1,7 +1,7 @@
 {
-  "name": "metabot",
+  "name": "codexbot",
   "version": "1.0.0",
-  "description": "MetaBot — Bridge service connecting Feishu/Lark bots to Codex",
+  "description": "CodexBot — Bridge service connecting Feishu/Lark bots to Codex",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {

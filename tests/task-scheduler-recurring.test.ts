@@ -20,7 +20,7 @@ vi.mock('../src/scheduler/cron-utils.js', () => ({
 import { nextCronOccurrence } from '../src/scheduler/cron-utils.js';
 const mockNextCron = vi.mocked(nextCronOccurrence);
 
-const PERSIST_DIR = path.join(os.homedir(), '.metabot');
+const PERSIST_DIR = path.join(os.homedir(), '.codexbot');
 const PERSIST_FILE = path.join(PERSIST_DIR, 'scheduled-tasks.json');
 
 function createMockLogger(): Logger {

@@ -30,7 +30,7 @@ export class SessionManager {
   ) {
     // Persist sessions to a file under the project data dir
     const dataDir = process.env.SESSION_STORE_DIR
-      || path.join(os.homedir(), '.metabot');
+      || path.join(os.homedir(), '.codexbot');
     fs.mkdirSync(dataDir, { recursive: true });
     this.persistPath = path.join(dataDir, `sessions-${botName}.json`);
 

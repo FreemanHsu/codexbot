@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'metabot',
+      name: 'codexbot',
       script: 'src/index.ts',
       interpreter: 'node_modules/.bin/tsx',
       cwd: __dirname,
@@ -26,7 +26,7 @@ module.exports = {
       // Environment
       env: {
         NODE_ENV: 'production',
-        CLAUDE_MAX_TURNS: '',  // unlimited turns (override any inherited shell env)
+        CODEX_MAX_TURNS: '',  // unlimited turns (override any inherited shell env)
       },
     },
   ],

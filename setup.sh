@@ -14,7 +14,7 @@ fail()  { echo -e "${RED}[FAIL]${NC} $1"; exit 1; }
 
 echo ""
 echo "========================================="
-echo "  MetaBot Setup (Feishu + Codex)"
+echo "  CodexBot Setup (Feishu + Codex)"
 echo "========================================="
 echo ""
 
@@ -89,7 +89,7 @@ if ! command -v pm2 &>/dev/null; then
 fi
 ok "PM2: $(pm2 -v)"
 
-pm2 delete metabot 2>/dev/null || true
+pm2 delete codexbot 2>/dev/null || true
 pm2 start ecosystem.config.cjs
 
 echo ""

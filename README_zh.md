@@ -1,4 +1,4 @@
-# MetaBot（飞书 + Codex）
+# codexbot（飞书 + Codex）
 
 这个版本是 **飞书机器人远程驱动 Codex** 的桥接服务。
 
@@ -11,8 +11,8 @@
 ## 快速启动
 
 ```bash
-git clone https://github.com/xvirobotics/metabot.git
-cd metabot
+git clone https://github.com/FreemanHsu/codexbot.git
+cd codexbot
 npm install
 cp bots.example.json bots.json
 cp .env.example .env

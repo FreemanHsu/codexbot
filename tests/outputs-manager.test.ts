@@ -16,7 +16,7 @@ describe('OutputsManager', () => {
   let manager: OutputsManager;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metabot-test-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'codexbot-test-'));
     manager = new OutputsManager(tmpDir, mockLogger);
   });
 
