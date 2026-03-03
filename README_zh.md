@@ -98,7 +98,23 @@ CODEX_EXECUTABLE_PATH=/Applications/Codex.app/Contents/Resources/codex
 - `GET /api/stats`
 - `GET /api/metrics`
 
+## 聊天命令
+
+- `/new [title]` 新建并切换到一个 thread
+- `/list [all]` 列出当前会话内的 thread（`all` 包含已归档）
+- `/thread <id>` 切换当前 thread
+- `/thread` 查看当前 thread
+- `/model` 查看当前 thread 模型
+- `/model codex|chat` 切换当前 thread 模型（`codex`=gpt-5.3-codex，`chat`=gpt-5.2）
+- `/history [threadId] [n]` 查看最近历史（默认当前 thread，20 条）
+- `/rename <threadId> <title>` 重命名 thread
+- `/archive <threadId>` 归档 thread（不传 id 则归档当前 thread）
+- `/reset` 重置当前 thread 的 Codex 会话
+- `/stop` 停止当前会话中的运行任务
+- `/status` 查看当前会话与 thread 状态
+
 ## 说明
 - 运行机需要预装并登录 Codex CLI。
+- thread 与历史元数据会持久化到 `~/.codexbot/threads-<botName>.json`。
 - 本仓库已移除 Telegram 运行链路。
 - 本仓库已移除 Claude Code 运行依赖。

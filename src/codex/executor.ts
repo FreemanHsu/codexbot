@@ -17,13 +17,13 @@ export class CodexExecutor {
   ) {}
 
   startExecution(options: ExecutorOptions): ExecutionHandle {
-    const { prompt, cwd, sessionId, abortController } = options;
+    const { prompt, cwd, sessionId, abortController, model } = options;
     const queue = new AsyncQueue<AgentMessage>();
     const startTime = Date.now();
 
     const outputFile = path.join(os.tmpdir(), `codexbot-codex-last-${process.pid}-${Date.now()}.txt`);
     const executable = process.env.CODEX_EXECUTABLE_PATH || 'codex';
-    const args = this.buildArgs(cwd, prompt, outputFile, sessionId);
+    const args = this.buildArgs(cwd, prompt, outputFile, sessionId, model);
 
     this.logger.info(
       { cwd, hasSession: !!sessionId, backend: 'codex', executable },
@@ -157,7 +157,7 @@ export class CodexExecutor {
     };
   }
 
-  private buildArgs(cwd: string, prompt: string, outputFile: string, sessionId?: string): string[] {
+  private buildArgs(cwd: string, prompt: string, outputFile: string, sessionId?: string, modelOverride?: string): string[] {
     const args: string[] = [
       'exec',
       '--json',
@@ -169,8 +169,9 @@ export class CodexExecutor {
       outputFile,
     ];
 
-    if (this.config.codex.model) {
-      args.push('--model', this.config.codex.model);
+    const effectiveModel = modelOverride || this.config.codex.model;
+    if (effectiveModel) {
+      args.push('--model', effectiveModel);
     }
 
     if (sessionId) {

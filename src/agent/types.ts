@@ -7,6 +7,7 @@ export interface ExecutorOptions {
   prompt: string;
   cwd: string;
   sessionId?: string;
+  model?: string;
   abortController: AbortController;
   outputsDir?: string;
   apiContext?: ApiContext;

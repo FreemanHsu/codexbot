@@ -98,7 +98,23 @@ CODEX_EXECUTABLE_PATH=/Applications/Codex.app/Contents/Resources/codex
 - `GET /api/stats`
 - `GET /api/metrics`
 
+## Chat Commands
+
+- `/new [title]` Create and switch to a new thread
+- `/list [all]` List threads in current chat (`all` includes archived)
+- `/thread <id>` Switch active thread
+- `/thread` Show current thread
+- `/model` Show current thread model
+- `/model codex|chat` Switch model for current thread (`codex`=gpt-5.3-codex, `chat`=gpt-5.2)
+- `/history [threadId] [n]` Show recent history (default: current, 20 lines)
+- `/rename <threadId> <title>` Rename a thread
+- `/archive <threadId>` Archive a thread (without id archives current)
+- `/reset` Reset Codex session for current thread
+- `/stop` Stop running task in current chat
+- `/status` Show current session and thread status
+
 ## Notes
 - The service assumes Codex CLI is installed and authenticated on the host.
+- Thread and history metadata are persisted under `~/.codexbot/threads-<botName>.json`.
 - There is no Telegram runtime in this codebase.
 - There is no Claude Code runtime dependency in this codebase.

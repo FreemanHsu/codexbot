@@ -17,6 +17,7 @@ import { CommandHandler } from './command-handler.js';
 import { OutputHandler } from './output-handler.js';
 import { CostTracker } from '../utils/cost-tracker.js';
 import { metrics } from '../utils/metrics.js';
+import { ThreadManager } from './thread-manager.js';
 
 const TASK_TIMEOUT_MS = 24 * 60 * 60 * 1000; // 24 hours
 const QUESTION_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes for user to answer
@@ -24,6 +25,8 @@ const MAX_QUEUE_SIZE = 5; // max queued messages per chat
 const IDLE_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour idle → abort
 const FINAL_CARD_RETRIES = 3;
 const FINAL_CARD_BASE_DELAY_MS = 2000;
+const CHAT_MODEL = 'gpt-5.2';
+const CODEX_MODEL = 'gpt-5.3-codex';
 
 interface RunningTask {
   abortController: AbortController;
@@ -61,6 +64,7 @@ export class MessageBridge {
   private commandHandler: CommandHandler;
   private outputHandler: OutputHandler;
   readonly costTracker: CostTracker;
+  private threadManager: ThreadManager;
   private runningTasks = new Map<string, RunningTask>(); // keyed by chatId
   private messageQueues = new Map<string, IncomingMessage[]>(); // per-chatId message queue
 
@@ -73,6 +77,8 @@ export class MessageBridge {
   ) {
     this.executor = new CodexExecutor(config, logger);
     this.sessionManager = new SessionManager(config.codex.defaultWorkingDirectory, logger, config.name);
+    const defaultMode: 'chat' | 'codex' = config.codex.model === CODEX_MODEL ? 'codex' : 'chat';
+    this.threadManager = new ThreadManager(logger, config.name, defaultMode);
     this.outputsManager = new OutputsManager(config.codex.outputsBaseDir, logger);
     this.audit = new AuditLogger(logger);
     this.costTracker = new CostTracker();
@@ -80,7 +86,7 @@ export class MessageBridge {
     const memoryClient = new MemoryClient(memoryServerUrl, logger, memorySecret);
 
     this.commandHandler = new CommandHandler(
-      config, logger, sender, this.sessionManager, memoryClient, this.audit,
+      config, logger, sender, this.sessionManager, this.threadManager, memoryClient, this.audit,
       (chatId) => this.runningTasks.get(chatId),
       (chatId) => this.stopTask(chatId),
     );
@@ -220,7 +226,9 @@ export class MessageBridge {
 
   private async executeQuery(msg: IncomingMessage): Promise<void> {
     const { userId, chatId, text, imageKey, fileKey, fileName, messageId: msgId } = msg;
-    const session = this.sessionManager.getSession(chatId);
+    const activeThread = this.threadManager.getActiveThread(chatId);
+    const sessionKey = ThreadManager.contextKey(chatId, activeThread.id);
+    const session = this.sessionManager.getSession(sessionKey);
     const cwd = session.workingDirectory;
     const abortController = new AbortController();
 
@@ -252,6 +260,7 @@ export class MessageBridge {
         prompt = `${text}\n\n(Note: Failed to download the file)`;
       }
     }
+    this.threadManager.appendMessage(chatId, activeThread.id, 'user', text);
 
     // Prepare per-chat outputs directory
     const outputsDir = this.outputsManager.prepareDir(chatId);
@@ -280,6 +289,7 @@ export class MessageBridge {
       prompt,
       cwd,
       sessionId: session.sessionId,
+      model: activeThread.modelMode === 'codex' ? CODEX_MODEL : CHAT_MODEL,
       abortController,
       outputsDir,
       apiContext,
@@ -340,7 +350,7 @@ export class MessageBridge {
         // Update session ID if discovered
         const newSessionId = processor.getSessionId();
         if (newSessionId && newSessionId !== session.sessionId) {
-          this.sessionManager.setSessionId(chatId, newSessionId);
+          this.sessionManager.setSessionId(sessionKey, newSessionId);
         }
 
         // Check if we hit a waiting_for_input state
@@ -414,7 +424,13 @@ export class MessageBridge {
         event: auditEvent,
         botName: this.config.name, chatId, userId, prompt: text,
         durationMs, costUsd: lastState.costUsd, error: lastState.errorMessage,
+        meta: { threadId: activeThread.id },
       });
+      if (lastState.responseText) {
+        this.threadManager.appendMessage(chatId, activeThread.id, 'assistant', lastState.responseText);
+      } else if (lastState.errorMessage) {
+        this.threadManager.appendMessage(chatId, activeThread.id, 'assistant', `Error: ${lastState.errorMessage}`);
+      }
       this.costTracker.record({ botName: this.config.name, userId, success: lastState.status === 'complete', costUsd: lastState.costUsd, durationMs });
       metrics.incCounter('metabot_tasks_total');
       metrics.incCounter('metabot_tasks_by_status', lastState.status === 'complete' ? 'success' : 'error');
@@ -430,7 +446,9 @@ export class MessageBridge {
       this.audit.log({
         event: 'task_error', botName: this.config.name, chatId, userId, prompt: text,
         durationMs, error: err.message || 'Unknown error',
+        meta: { threadId: activeThread.id },
       });
+      this.threadManager.appendMessage(chatId, activeThread.id, 'assistant', `Error: ${err.message || 'Unknown error'}`);
       this.costTracker.record({ botName: this.config.name, userId, success: false, durationMs });
       metrics.incCounter('metabot_tasks_total');
       metrics.incCounter('metabot_tasks_by_status', 'error');
@@ -471,9 +489,12 @@ export class MessageBridge {
       return { success: false, responseText: '', error: 'Chat is busy with another task' };
     }
 
-    const session = this.sessionManager.getSession(chatId);
+    const activeThread = this.threadManager.getActiveThread(chatId);
+    const sessionKey = ThreadManager.contextKey(chatId, activeThread.id);
+    const session = this.sessionManager.getSession(sessionKey);
     const cwd = session.workingDirectory;
     const abortController = new AbortController();
+    this.threadManager.appendMessage(chatId, activeThread.id, 'user', prompt);
 
     const outputsDir = this.outputsManager.prepareDir(chatId);
 
@@ -498,6 +519,7 @@ export class MessageBridge {
       prompt,
       cwd,
       sessionId: session.sessionId,
+      model: activeThread.modelMode === 'codex' ? CODEX_MODEL : CHAT_MODEL,
       abortController,
       outputsDir,
       apiContext,
@@ -557,7 +579,7 @@ export class MessageBridge {
 
         const newSessionId = processor.getSessionId();
         if (newSessionId && newSessionId !== session.sessionId) {
-          this.sessionManager.setSessionId(chatId, newSessionId);
+          this.sessionManager.setSessionId(sessionKey, newSessionId);
         }
 
         if (state.status === 'waiting_for_input' && state.pendingQuestion) {
@@ -608,7 +630,13 @@ export class MessageBridge {
       this.audit.log({
         event: 'api_task_complete', botName: this.config.name, chatId, userId, prompt,
         durationMs, costUsd: lastState.costUsd, error: lastState.errorMessage,
+        meta: { threadId: activeThread.id },
       });
+      if (lastState.responseText) {
+        this.threadManager.appendMessage(chatId, activeThread.id, 'assistant', lastState.responseText);
+      } else if (lastState.errorMessage) {
+        this.threadManager.appendMessage(chatId, activeThread.id, 'assistant', `Error: ${lastState.errorMessage}`);
+      }
       this.costTracker.record({ botName: this.config.name, userId, success: lastState.status === 'complete', costUsd: lastState.costUsd, durationMs });
       metrics.incCounter('metabot_api_tasks_total');
       metrics.observeHistogram('metabot_task_duration_seconds', durationMs / 1000);
@@ -624,6 +652,7 @@ export class MessageBridge {
       };
     } catch (err: any) {
       this.logger.error({ err, chatId, userId }, 'API task execution error');
+      this.threadManager.appendMessage(chatId, activeThread.id, 'assistant', `Error: ${err.message || 'Unknown error'}`);
 
       if (sendCards && messageId) {
         const errorState: CardState = {
