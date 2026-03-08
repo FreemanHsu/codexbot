@@ -6,6 +6,7 @@ import { SessionManager } from '../agent/session-manager.js';
 import { MemoryClient } from '../memory/memory-client.js';
 import { AuditLogger } from '../utils/audit-logger.js';
 import { ThreadManager } from './thread-manager.js';
+import type { CodexRateLimitSnapshot, CodexRateLimitWindow } from '../codex/rate-limit-reader.js';
 
 const MODEL_LABEL: Record<'chat' | 'code', string> = {
   chat: 'gpt-5.2',
@@ -21,6 +22,7 @@ export class CommandHandler {
     private threadManager: ThreadManager,
     private memoryClient: MemoryClient,
     private audit: AuditLogger,
+    private readRateLimits: () => Promise<CodexRateLimitSnapshot>,
     private getRunningTask: (chatId: string) => { startTime: number } | undefined,
     private stopTask: (chatId: string) => void,
   ) {}
@@ -49,6 +51,7 @@ export class CommandHandler {
           '`/reset` - Clear session, start fresh',
           '`/stop` - Abort current running task',
           '`/status` - Show current session info',
+          '`/cost` - Show remaining Codex quota',
           '`/memory` - Memory document commands',
           '`/help` - Show this help message',
           '',
@@ -285,6 +288,28 @@ export class CommandHandler {
         return true;
       }
 
+      case '/cost': {
+        try {
+          const snapshot = await this.readRateLimits();
+          const fiveHour = this.pickWindow(snapshot, 300, 'primary');
+          const weekly = this.pickWindow(snapshot, 7 * 24 * 60, 'secondary');
+          await this.sender.sendTextNotice(chatId, '💳 Codex Quota', [
+            this.formatQuotaLine('5h', fiveHour),
+            this.formatQuotaLine('1 week', weekly),
+            snapshot.limitName ? `Plan: \`${snapshot.limitName}\`` : undefined,
+          ].filter(Boolean).join('\n'), 'blue');
+        } catch (err: any) {
+          this.logger.error({ err, chatId, userId }, 'Failed to read Codex rate limits');
+          await this.sender.sendTextNotice(
+            chatId,
+            '❌ Codex Quota Unavailable',
+            `Failed to read current quota from Codex CLI: ${err.message}`,
+            'red',
+          );
+        }
+        return true;
+      }
+
       case '/memory': {
         const args = text.slice('/memory'.length).trim();
         await this.handleMemoryCommand(chatId, args);
@@ -306,6 +331,38 @@ export class CommandHandler {
     if (hr < 24) return `${hr}h ago`;
     const day = Math.floor(hr / 24);
     return `${day}d ago`;
+  }
+
+  private pickWindow(
+    snapshot: CodexRateLimitSnapshot,
+    targetDurationMins: number,
+    fallback: 'primary' | 'secondary',
+  ): CodexRateLimitWindow | null {
+    const windows = [snapshot.primary, snapshot.secondary].filter((item): item is CodexRateLimitWindow => !!item);
+    const exact = windows.find((item) => item.windowDurationMins === targetDurationMins);
+    if (exact) return exact;
+    return snapshot[fallback];
+  }
+
+  private formatQuotaLine(label: string, window: CodexRateLimitWindow | null): string {
+    if (!window) return `**${label}:** _Unavailable_`;
+    const resetText = this.formatResetAt(window.resetsAt);
+    return `**${label}:** ${window.remainingPercent.toFixed(1)}% remaining (${window.usedPercent.toFixed(1)}% used)${resetText ? `, resets ${resetText}` : ''}`;
+  }
+
+  private formatResetAt(timestamp: number | null): string {
+    if (!timestamp) return '';
+    const ms = timestamp < 1_000_000_000_000 ? timestamp * 1000 : timestamp;
+    const date = new Date(ms);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
   }
 
   private async handleMemoryCommand(chatId: string, args: string): Promise<void> {

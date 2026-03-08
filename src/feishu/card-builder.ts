@@ -132,6 +132,7 @@ export function buildHelpCard(): string {
           '`/reset` - Clear session, start fresh',
           '`/stop` - Abort current running task',
           '`/status` - Show current session info',
+          '`/cost` - Show remaining Codex quota',
           '`/memory` - Memory document commands',
           '`/help` - Show this help message',
           '',

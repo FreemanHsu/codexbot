@@ -112,6 +112,7 @@ CODEX_EXECUTABLE_PATH=/Applications/Codex.app/Contents/Resources/codex
 - `/reset` 重置当前 thread 的 Codex 会话
 - `/stop` 停止当前会话中的运行任务
 - `/status` 查看当前会话与 thread 状态
+- `/cost` 查看当前 Codex 剩余额度（`5 小时` 和 `1 周`）
 
 ## 说明
 - 运行机需要预装并登录 Codex CLI。

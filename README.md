@@ -112,6 +112,7 @@ CODEX_EXECUTABLE_PATH=/Applications/Codex.app/Contents/Resources/codex
 - `/reset` Reset Codex session for current thread
 - `/stop` Stop running task in current chat
 - `/status` Show current session and thread status
+- `/cost` Show remaining Codex quota (`5h` and `1 week`)
 
 ## Notes
 - The service assumes Codex CLI is installed and authenticated on the host.

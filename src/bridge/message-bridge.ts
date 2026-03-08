@@ -18,6 +18,7 @@ import { OutputHandler } from './output-handler.js';
 import { CostTracker } from '../utils/cost-tracker.js';
 import { metrics } from '../utils/metrics.js';
 import { ThreadManager } from './thread-manager.js';
+import { CodexRateLimitReader } from '../codex/rate-limit-reader.js';
 
 const TASK_TIMEOUT_MS = 24 * 60 * 60 * 1000; // 24 hours
 const QUESTION_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes for user to answer
@@ -82,11 +83,13 @@ export class MessageBridge {
     this.outputsManager = new OutputsManager(config.codex.outputsBaseDir, logger);
     this.audit = new AuditLogger(logger);
     this.costTracker = new CostTracker();
+    const rateLimitReader = new CodexRateLimitReader(logger);
 
     const memoryClient = new MemoryClient(memoryServerUrl, logger, memorySecret);
 
     this.commandHandler = new CommandHandler(
       config, logger, sender, this.sessionManager, this.threadManager, memoryClient, this.audit,
+      () => rateLimitReader.read(),
       (chatId) => this.runningTasks.get(chatId),
       (chatId) => this.stopTask(chatId),
     );
