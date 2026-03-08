@@ -26,7 +26,7 @@ const IDLE_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour idle → abort
 const FINAL_CARD_RETRIES = 3;
 const FINAL_CARD_BASE_DELAY_MS = 2000;
 const CHAT_MODEL = 'gpt-5.2';
-const CODEX_MODEL = 'gpt-5.3-codex';
+const CODE_MODEL = 'gpt-5.4';
 
 interface RunningTask {
   abortController: AbortController;
@@ -77,7 +77,7 @@ export class MessageBridge {
   ) {
     this.executor = new CodexExecutor(config, logger);
     this.sessionManager = new SessionManager(config.codex.defaultWorkingDirectory, logger, config.name);
-    const defaultMode: 'chat' | 'codex' = config.codex.model === CODEX_MODEL ? 'codex' : 'chat';
+    const defaultMode: 'chat' | 'code' = config.codex.model === CODE_MODEL ? 'code' : 'chat';
     this.threadManager = new ThreadManager(logger, config.name, defaultMode);
     this.outputsManager = new OutputsManager(config.codex.outputsBaseDir, logger);
     this.audit = new AuditLogger(logger);
@@ -289,7 +289,7 @@ export class MessageBridge {
       prompt,
       cwd,
       sessionId: session.sessionId,
-      model: activeThread.modelMode === 'codex' ? CODEX_MODEL : CHAT_MODEL,
+      model: activeThread.modelMode === 'code' ? CODE_MODEL : CHAT_MODEL,
       abortController,
       outputsDir,
       apiContext,
@@ -519,7 +519,7 @@ export class MessageBridge {
       prompt,
       cwd,
       sessionId: session.sessionId,
-      model: activeThread.modelMode === 'codex' ? CODEX_MODEL : CHAT_MODEL,
+      model: activeThread.modelMode === 'code' ? CODE_MODEL : CHAT_MODEL,
       abortController,
       outputsDir,
       apiContext,

@@ -10,7 +10,7 @@ export interface ThreadSummary {
   updatedAt: number;
   messageCount: number;
   archived: boolean;
-  modelMode: 'chat' | 'codex';
+  modelMode: 'chat' | 'code';
 }
 
 export interface ThreadMessage {
@@ -38,7 +38,7 @@ export class ThreadManager {
   constructor(
     private logger: Logger,
     botName: string = 'default',
-    private defaultModelMode: 'chat' | 'codex' = 'chat',
+    private defaultModelMode: 'chat' | 'code' = 'chat',
   ) {
     const dataDir = process.env.SESSION_STORE_DIR || path.join(os.homedir(), '.codexbot');
     fs.mkdirSync(dataDir, { recursive: true });
@@ -115,7 +115,7 @@ export class ThreadManager {
     return thread;
   }
 
-  setThreadModel(chatId: string, threadId: string, modelMode: 'chat' | 'codex'): ThreadSummary | undefined {
+  setThreadModel(chatId: string, threadId: string, modelMode: 'chat' | 'code'): ThreadSummary | undefined {
     const state = this.ensureChat(chatId);
     const thread = state.threads[threadId];
     if (!thread || thread.archived) return undefined;
@@ -261,7 +261,10 @@ export class ThreadManager {
           if (typeof thread.archived !== 'boolean') {
             thread.archived = false;
           }
-          if (thread.modelMode !== 'chat' && thread.modelMode !== 'codex') {
+          if ((thread as { modelMode?: string }).modelMode === 'codex') {
+            thread.modelMode = 'code';
+          }
+          if (thread.modelMode !== 'chat' && thread.modelMode !== 'code') {
             thread.modelMode = this.defaultModelMode;
           }
         }

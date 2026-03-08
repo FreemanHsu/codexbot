@@ -93,9 +93,9 @@ describe('ThreadManager', () => {
 
   it('supports per-thread model mode', () => {
     process.env.SESSION_STORE_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'codexbot-thread-test-'));
-    manager = new ThreadManager(createLogger(), 'bot-f', 'codex');
+    manager = new ThreadManager(createLogger(), 'bot-f', 'code');
     const thread = manager.getActiveThread('chat1');
-    expect(thread.modelMode).toBe('codex');
+    expect(thread.modelMode).toBe('code');
 
     const updated = manager.setThreadModel('chat1', thread.id, 'chat');
     expect(updated?.modelMode).toBe('chat');

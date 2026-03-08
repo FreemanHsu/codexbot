@@ -7,9 +7,9 @@ import { MemoryClient } from '../memory/memory-client.js';
 import { AuditLogger } from '../utils/audit-logger.js';
 import { ThreadManager } from './thread-manager.js';
 
-const MODEL_LABEL: Record<'chat' | 'codex', string> = {
+const MODEL_LABEL: Record<'chat' | 'code', string> = {
   chat: 'gpt-5.2',
-  codex: 'gpt-5.3-codex',
+  code: 'gpt-5.4',
 };
 
 export class CommandHandler {
@@ -42,7 +42,7 @@ export class CommandHandler {
           '`/new [title]` - Create and switch to a new thread',
           '`/list [all]` - List threads in this chat',
           '`/thread <id>` - Switch active thread',
-          '`/model [codex|chat]` - Show or switch thread model',
+          '`/model [code|chat]` - Show or switch thread model',
           '`/history [threadId] [n]` - Show recent history',
           '`/rename <id> <title>` - Rename thread',
           '`/archive <id>` - Archive thread',
@@ -137,21 +137,22 @@ export class CommandHandler {
               `Thread: \`${current.id}\` (${current.title})`,
               `Mode: \`${current.modelMode}\``,
               `Model: \`${MODEL_LABEL[current.modelMode]}\``,
-              'Switch with `/model codex` or `/model chat`',
+              'Switch with `/model code` or `/model chat`',
             ].join('\n'),
             'blue',
           );
           return true;
         }
-        if (mode !== 'chat' && mode !== 'codex') {
-          await this.sender.sendTextNotice(chatId, '🤖 Model', 'Usage: `/model` or `/model codex|chat`', 'orange');
+        const normalizedMode = mode === 'codex' ? 'code' : mode;
+        if (normalizedMode !== 'chat' && normalizedMode !== 'code') {
+          await this.sender.sendTextNotice(chatId, '🤖 Model', 'Usage: `/model` or `/model code|chat`', 'orange');
           return true;
         }
         if (this.getRunningTask(chatId)) {
           await this.sender.sendTextNotice(chatId, '⏳ Task In Progress', 'Please wait for current task to finish, or use `/stop` first.', 'orange');
           return true;
         }
-        const updated = this.threadManager.setThreadModel(chatId, current.id, mode);
+        const updated = this.threadManager.setThreadModel(chatId, current.id, normalizedMode);
         if (!updated) {
           await this.sender.sendTextNotice(chatId, '❌ Model Update Failed', 'Could not update thread model.', 'red');
           return true;

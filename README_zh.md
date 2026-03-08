@@ -105,7 +105,7 @@ CODEX_EXECUTABLE_PATH=/Applications/Codex.app/Contents/Resources/codex
 - `/thread <id>` 切换当前 thread
 - `/thread` 查看当前 thread
 - `/model` 查看当前 thread 模型
-- `/model codex|chat` 切换当前 thread 模型（`codex`=gpt-5.3-codex，`chat`=gpt-5.2）
+- `/model code|chat` 切换当前 thread 模型（`code`=gpt-5.4，`chat`=gpt-5.2）
 - `/history [threadId] [n]` 查看最近历史（默认当前 thread，20 条）
 - `/rename <threadId> <title>` 重命名 thread
 - `/archive <threadId>` 归档 thread（不传 id 则归档当前 thread）

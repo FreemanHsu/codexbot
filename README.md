@@ -105,7 +105,7 @@ CODEX_EXECUTABLE_PATH=/Applications/Codex.app/Contents/Resources/codex
 - `/thread <id>` Switch active thread
 - `/thread` Show current thread
 - `/model` Show current thread model
-- `/model codex|chat` Switch model for current thread (`codex`=gpt-5.3-codex, `chat`=gpt-5.2)
+- `/model code|chat` Switch model for current thread (`code`=gpt-5.4, `chat`=gpt-5.2)
 - `/history [threadId] [n]` Show recent history (default: current, 20 lines)
 - `/rename <threadId> <title>` Rename a thread
 - `/archive <threadId>` Archive a thread (without id archives current)
